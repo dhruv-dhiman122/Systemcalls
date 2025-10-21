@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <string.h>
 
-//--------------- After this line there must not be any more inclusion --------------------------//
+//-------------- After this line there must not be any more inclusion --------------------------//
 
 //------------------- Area for macro or for operations before compiler kicks in -----------------------------------//
 
