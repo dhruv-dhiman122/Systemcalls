@@ -4,7 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-
+#include <signal.h>
+#include <sys/inotify.h>
 //-------------- After this line there must not be any more inclusion --------------------------//
 
 //------------------- Area for macro or for operations before compiler kicks in -----------------------------------//
@@ -12,7 +13,10 @@
 #define exit_success 0
 #define exit_failure 1
 #define TOO_FEW_ARGUMENTS 1
+#define EXT_ERR_INIT_INOTIFY 2
 //---------------------------- Area for global variables or namespaces (if any) ----------------------------------//
+
+int IeventQueue = -1;
 
 //------------------ After this line the code is there written any function that is made by the user ----------------------------------------//
 
@@ -51,6 +55,12 @@ int main(int argc, char** argv) {
 				printf("\n");
 		}
 		
+		IeventQueue = inotify_init();
+		if(IeventQueue == -1) {
+				fprintf(stderr, "Error initialising inotify instance!\n");
+				exit(EXT_ERR_INIT_INOTIFY);
+		}
+
 		while(true) // because the system calls run behind the sense continue 
 		{
 		
