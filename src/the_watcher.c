@@ -14,9 +14,12 @@
 #define exit_failure 1
 #define TOO_FEW_ARGUMENTS 1
 #define EXT_ERR_INIT_INOTIFY 2
+#define EXT_ADD_WATCH 3
+#define EXT_ERR_BASE_PATH_NULL 4
 //---------------------------- Area for global variables or namespaces (if any) ----------------------------------//
 
 int IeventQueue = -1;
+int IeventStatus = -1;
 
 //------------------ After this line the code is there written any function that is made by the user ----------------------------------------//
 
@@ -24,7 +27,10 @@ int IeventQueue = -1;
 int main(int argc, char** argv) {
 		char *basePath = NULL;
 		char *token = NULL;
-    
+		char buffer[4096];
+		int readLength;
+		const uint32_t watchMask = IN_CREATE | IN_DELETE | IN_ACCESS | IN_CLOSE_WRITE | IN_MODIFY | IN_MOVE_SELF;
+
 		if (argc < 2) {
 				fprintf(stderr, "USAGE: the_watcher path\n");
 				exit(TOO_FEW_ARGUMENTS);
@@ -54,6 +60,11 @@ int main(int argc, char** argv) {
 		else {
 				printf("\n");
 		}
+
+		if(basePath == NULL) {
+				fprintf(stderr, "Error getting base path");
+				exit(EXT_ERR_BASE_PATH_NULL);
+		}
 		
 		IeventQueue = inotify_init();
 		if(IeventQueue == -1) {
@@ -61,9 +72,19 @@ int main(int argc, char** argv) {
 				exit(EXT_ERR_INIT_INOTIFY);
 		}
 
+		IeventStatus = inotify_add_watch(IeventQueue, argv[1], watchMask);
+		
+		if(IeventStatus == -1) {
+				fprintf(stderr, "Error adding file to watch instance!\n");
+				exit(EXT_ADD_WATCH);
+		}
+
 		while(true) // because the system calls run behind the sense continue 
 		{
-		
+				printf("Waiting for ievent.....\n");
+
+				readLength = read(IeventQueue, buffer, sizeof(buffer));
+				
 		}
 
 		free(basePath);
