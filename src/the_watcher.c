@@ -1,3 +1,4 @@
+//============================= space for including files ============================//
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -7,6 +8,8 @@
 #include <signal.h>
 #include <sys/inotify.h>
 
+//============================ Space for macro ===================================//
+
 #define exit_success 0
 #define exit_failure 1
 #define TOO_FEW_ARGUMENTS 1
@@ -15,8 +18,12 @@
 #define EXT_ERR_BASE_PATH_NULL 4
 #define EXT_ERR_READ_INOTFY 5
 
+//================================== space for golbal variables ===============================//
+
 int IeventQueue = -1;
 int IeventStatus = -1;
+
+//======================== space for main function ==================================//
 
 int main(int argc, char** argv) {
     char *basePath = NULL;
