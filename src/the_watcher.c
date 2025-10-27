@@ -16,6 +16,7 @@
 #define EXT_ERR_INIT_INOTIFY 2
 #define EXT_ADD_WATCH 3
 #define EXT_ERR_BASE_PATH_NULL 4
+#define EXT_ERR_READ_INOTFY 5
 //---------------------------- Area for global variables or namespaces (if any) ----------------------------------//
 
 int IeventQueue = -1;
@@ -85,7 +86,13 @@ int main(int argc, char** argv) {
 				printf("Waiting for ievent.....\n");
 
 				readLength = read(IeventQueue, buffer, sizeof(buffer));
-				for(char *bufferPointer = buffer; bufferPointer < buffer + readLength; bufferPointer += sizeof(struct inotify_event) + WatchEvent -> len)
+				if(readLength == -1) {
+						fprintf(stderr, "Error reading fron inotify instance\n");
+						exit(EXT_ERR_INIT_INOTIFY);
+				}
+				for(char *bufferPointer = buffer; bufferPointer < buffer + readLength; bufferPointer += sizeof(struct inotify_event) + WatchEvent -> len) {
+						
+				}
 		}
 
 		free(basePath);
