@@ -94,7 +94,22 @@ int main(int argc, char** argv) {
 				for(char *bufferPointer = buffer; bufferPointer < buffer + readLength; bufferPointer += sizeof(struct inotify_event) + watchEvent -> len) {
 						watchEvent = (const struct inotify_event *) bufferPointer;						
 						if(watchEvent -> mask & IN_CREATE) {
-
+								noitficationMessage = "File created\n";
+						}
+						if(watchEvent -> mask & IN_DELETE) {
+								noitficationMessage = "File deleted\n";
+						}
+						if(watchEvent -> mask & IN_ACCESS) {
+								noitficationMessage = "File accessed\n";
+						}
+						if(watchEvent -> mask & IN_MODIFY) {
+								noitficationMessage = "File modified\n";
+						}
+						if(watchEvent -> mask & IN_CLOSE_WRITE) {
+								noitficationMessage = "File written and closed\n";
+						}
+						if(watchEvent -> mask & IN_MOVE_SELF) {
+								noitficationMessage = "File moved\n";
 						}
 				}
 		}
