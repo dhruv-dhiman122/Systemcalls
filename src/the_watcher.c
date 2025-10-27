@@ -6,9 +6,6 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/inotify.h>
-//-------------- After this line there must not be any more inclusion --------------------------//
-
-//------------------- Area for macro or for operations before compiler kicks in -----------------------------------//
 
 #define exit_success 0
 #define exit_failure 1
@@ -17,103 +14,103 @@
 #define EXT_ADD_WATCH 3
 #define EXT_ERR_BASE_PATH_NULL 4
 #define EXT_ERR_READ_INOTFY 5
-//---------------------------- Area for global variables or namespaces (if any) ----------------------------------//
 
 int IeventQueue = -1;
 int IeventStatus = -1;
 
-//------------------ After this line the code is there written any function that is made by the user ----------------------------------------//
-
-// ---------------------- space for main function only --------------------------------
 int main(int argc, char** argv) {
-		char *basePath = NULL;
-		char *token = NULL;
-		char *noitficationMessage = NULL;
-		char buffer[4096];
-		int readLength;
-		const struct inotify_event* watchEvent;
-		const uint32_t watchMask = IN_CREATE | IN_DELETE | IN_ACCESS | IN_CLOSE_WRITE | IN_MODIFY | IN_MOVE_SELF;
+    char *basePath = NULL;
+    char *token = NULL;
+    char *notificationMessage = NULL;
+    char buffer[4096];
+    int readLength;
+    struct inotify_event *watchEvent;
+    const uint32_t watchMask = IN_CREATE | IN_DELETE | IN_ACCESS | IN_CLOSE_WRITE | IN_MODIFY | IN_MOVE_SELF;
 
-		if (argc < 2) {
-				fprintf(stderr, "USAGE: the_watcher path\n");
-				exit(TOO_FEW_ARGUMENTS);
-		}
+    if (argc < 2) {
+        fprintf(stderr, "USAGE: the_watcher path\n");
+        exit(TOO_FEW_ARGUMENTS);
+    }
 
-		// Copy the input string properly
-		basePath = (char*)malloc(strlen(argv[1]) + 1);
+    // Extract last token from path (for display purposes only)
+    char *pathCopy = strdup(argv[1]);
+    if (pathCopy == NULL) {
+        perror("strdup failed");
+        exit(exit_failure);
+    }
     
-		if (basePath == NULL) {
-				perror("malloc failed");
-				exit(exit_failure);
-		}
-		strcpy(basePath, argv[1]);
-
-		// Tokenize to get the last component
-		token = strtok(basePath, "/");
-		char *lastToken = token;
-		
-		while (token != NULL) {
-				lastToken = token;  // Keep track of the last token
-				token = strtok(NULL, "/");
-		}
+    token = strtok(pathCopy, "/");
+    char *lastToken = token;
     
-		if (lastToken != NULL) {
-				printf("%s\n", lastToken);
-		} 
-		else {
-				printf("\n");
-		}
+    while (token != NULL) {
+        lastToken = token;
+        token = strtok(NULL, "/");
+    }
+    
+    if (lastToken != NULL) {
+        printf("Watching: %s\n", lastToken);
+    }
+    free(pathCopy);
 
-		if(basePath == NULL) {
-				fprintf(stderr, "Error getting base path");
-				exit(EXT_ERR_BASE_PATH_NULL);
-		}
-		
-		IeventQueue = inotify_init();
-		if(IeventQueue == -1) {
-				fprintf(stderr, "Error initialising inotify instance!\n");
-				exit(EXT_ERR_INIT_INOTIFY);
-		}
+    // Initialize inotify
+    IeventQueue = inotify_init();
+    if (IeventQueue == -1) {
+        perror("Error initialising inotify instance");
+        exit(EXT_ERR_INIT_INOTIFY);
+    }
 
-		IeventStatus = inotify_add_watch(IeventQueue, argv[1], watchMask);
-		
-		if(IeventStatus == -1) {
-				fprintf(stderr, "Error adding file to watch instance!\n");
-				exit(EXT_ADD_WATCH);
-		}
+    // Add watch - use original argv[1], not the corrupted basePath
+    IeventStatus = inotify_add_watch(IeventQueue, argv[1], watchMask);
+    
+    if (IeventStatus == -1) {
+        perror("Error adding file to watch instance");
+        close(IeventQueue);
+        exit(EXT_ADD_WATCH);
+    }
 
-		while(true) // because the system calls run behind the sense continue 
-		{
-				printf("Waiting for ievent.....\n");
+    printf("Starting to watch: %s\n", argv[1]);
 
-				readLength = read(IeventQueue, buffer, sizeof(buffer));
-				if(readLength == -1) {
-						fprintf(stderr, "Error reading fron inotify instance\n");
-						exit(EXT_ERR_INIT_INOTIFY);
-				}
-				for(char *bufferPointer = buffer; bufferPointer < buffer + readLength; bufferPointer += sizeof(struct inotify_event) + watchEvent -> len) {
-						watchEvent = (const struct inotify_event *) bufferPointer;						
-						if(watchEvent -> mask & IN_CREATE) {
-								noitficationMessage = "File created\n";
-						}
-						if(watchEvent -> mask & IN_DELETE) {
-								noitficationMessage = "File deleted\n";
-						}
-						if(watchEvent -> mask & IN_ACCESS) {
-								noitficationMessage = "File accessed\n";
-						}
-						if(watchEvent -> mask & IN_MODIFY) {
-								noitficationMessage = "File modified\n";
-						}
-						if(watchEvent -> mask & IN_CLOSE_WRITE) {
-								noitficationMessage = "File written and closed\n";
-						}
-						if(watchEvent -> mask & IN_MOVE_SELF) {
-								noitficationMessage = "File moved\n";
-						}
-				}
-		}
+    while (true) {
+        readLength = read(IeventQueue, buffer, sizeof(buffer));
+        if (readLength == -1) {
+            perror("Error reading from inotify instance");
+            close(IeventQueue);
+            exit(EXT_ERR_READ_INOTFY);
+        }
 
-		free(basePath);
-		exit(exit_success);
+        char *bufferPointer = buffer;
+        while (bufferPointer < buffer + readLength) {
+            watchEvent = (struct inotify_event *)bufferPointer;
+            
+            // Determine event type
+            notificationMessage = "Unknown event";
+            if (watchEvent->mask & IN_CREATE) {
+                notificationMessage = "File created";
+            } else if (watchEvent->mask & IN_DELETE) {
+                notificationMessage = "File deleted";
+            } else if (watchEvent->mask & IN_ACCESS) {
+                notificationMessage = "File accessed";
+            } else if (watchEvent->mask & IN_MODIFY) {
+                notificationMessage = "File modified";
+            } else if (watchEvent->mask & IN_CLOSE_WRITE) {
+                notificationMessage = "File written and closed";
+            } else if (watchEvent->mask & IN_MOVE_SELF) {
+                notificationMessage = "File moved";
+            }
+
+            // Print the event information
+            if (watchEvent->len) {
+                printf("%s: %s\n", notificationMessage, watchEvent->name);
+            } else {
+                printf("%s\n", notificationMessage);
+            }
+
+            // Move to next event
+            bufferPointer += sizeof(struct inotify_event) + watchEvent->len;
+        }
+    }
+
+    // Cleanup (this code is unreachable in the infinite loop)
+    close(IeventQueue);
+    return exit_success;
 }
