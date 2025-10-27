@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
             perror("Error reading from inotify instance");
             close(IeventQueue);
             exit(EXT_ERR_READ_INOTFY);
-        }
+        };
 
         char *bufferPointer = buffer;
         while (bufferPointer < buffer + readLength) {
@@ -119,5 +119,5 @@ int main(int argc, char** argv) {
 
     // Cleanup (this code is unreachable in the infinite loop)
     close(IeventQueue);
-    return exit_success;
+	exit(exit_success);
 }
