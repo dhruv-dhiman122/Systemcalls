@@ -28,9 +28,10 @@ int IeventStatus = -1;
 int main(int argc, char** argv) {
 		char *basePath = NULL;
 		char *token = NULL;
+		char *noitficationMessage = NULL;
 		char buffer[4096];
 		int readLength;
-		const struct inotify_event* WatchEvent;
+		const struct inotify_event* watchEvent;
 		const uint32_t watchMask = IN_CREATE | IN_DELETE | IN_ACCESS | IN_CLOSE_WRITE | IN_MODIFY | IN_MOVE_SELF;
 
 		if (argc < 2) {
@@ -90,8 +91,11 @@ int main(int argc, char** argv) {
 						fprintf(stderr, "Error reading fron inotify instance\n");
 						exit(EXT_ERR_INIT_INOTIFY);
 				}
-				for(char *bufferPointer = buffer; bufferPointer < buffer + readLength; bufferPointer += sizeof(struct inotify_event) + WatchEvent -> len) {
-						
+				for(char *bufferPointer = buffer; bufferPointer < buffer + readLength; bufferPointer += sizeof(struct inotify_event) + watchEvent -> len) {
+						watchEvent = (const struct inotify_event *) bufferPointer;						
+						if(watchEvent -> mask & IN_CREATE) {
+
+						}
 				}
 		}
 
