@@ -17,15 +17,18 @@
 #define EXT_ADD_WATCH 3
 #define EXT_ERR_BASE_PATH_NULL 4
 #define EXT_ERR_READ_INOTFY 5
+#define EXT_ERR_INIT_LIBNOTIFY 6
 
 //================================== space for golbal variables ===============================//
 
 int IeventQueue = -1;
 int IeventStatus = -1;
+char *Programtitle = "the_watcher";
 
 //======================== space for main function ==================================//
 
 int main(int argc, char** argv) {
+		bool libnotifyInitStatus = false;
 		char *basePath = NULL;
 		char *token = NULL;
 		char *notificationMessage = NULL;
@@ -58,7 +61,11 @@ int main(int argc, char** argv) {
 				printf("Watching: %s\n", lastToken);
 		}
 		free(pathCopy);
-
+		libnotifyInitStatus = inotify_init(Programtitle);
+		if(!libnotifyInitStatus) {
+				fprintf(stderr, "Error in initializing libnotify\n");
+				exit(EXT_ERR_INIT_LIBNOTIFY);
+		}
 		// Initialize inotify
 		IeventQueue = inotify_init();
 		if (IeventQueue == -1) {
@@ -115,10 +122,6 @@ int main(int argc, char** argv) {
 						// Move to next event
 						bufferPointer += sizeof(struct inotify_event) + watchEvent->len;
 				}
-		}
-
-		for(int i = 0; i < 5; i++) {
-				printf("%d\n",i);
 		}
 
 		// Cleanup (this code is unreachable in the infinite loop)
