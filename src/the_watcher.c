@@ -25,6 +25,15 @@ int IeventQueue = -1;
 int IeventStatus = -1;
 char *Programtitle = "the_watcher";
 
+//============================ space for other function made by the user ================================//
+
+void singal_handler(int signal) {
+		int closeStatus = -1;
+		printf("Signal received, cleaning up.....");	
+		closeStatus = inotify_rm_watch(IeventQueue, IeventStatus);
+		exit(exit_success);
+}
+
 //======================== space for main function ==================================//
 
 int main(int argc, char** argv) {
@@ -61,7 +70,7 @@ int main(int argc, char** argv) {
 				printf("Watching: %s\n", lastToken);
 		}
 		free(pathCopy);
-		libnotifyInitStatus = inotify_init(Programtitle);
+		libnotifyInitStatus = notify_init(Programtitle);
 		if(!libnotifyInitStatus) {
 				fprintf(stderr, "Error in initializing libnotify\n");
 				exit(EXT_ERR_INIT_LIBNOTIFY);
