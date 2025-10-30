@@ -121,6 +121,13 @@ int main(int argc, char** argv) {
 
 						// Move to next event
 						bufferPointer += sizeof(struct inotify_event) + watchEvent->len;
+
+						int notifyHandle = notify_notification_new(basePath, notificationMessage, "dialog-information");
+						if(notifyHandle == NULL) {
+								fprintf(stderr, "notification handle was null!\n");
+								continue;
+						}
+						notifiy_notification(notifyHandle, NULL);
 				}
 		}
 
