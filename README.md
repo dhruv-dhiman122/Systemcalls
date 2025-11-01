@@ -7,4 +7,3 @@
 
 # Usage of this repo
 - Learning objective
-- Used for SFUs and upcoming projects
