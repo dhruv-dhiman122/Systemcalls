@@ -28,9 +28,10 @@ inline void FileError() {
 }
 
 
-inline void ReadFile(int first_file, int second_file) {
+inline void CopyFile(int first_file, int second_file) { // first_file and second_file is a file descriptor
     //do something
     //Aim; to be called when the user what to read from one file into other
+
 }
 
 inline void WriteFile(int first_file, int second_file) {
@@ -41,6 +42,12 @@ inline void WriteFile(int first_file, int second_file) {
 //=========================================== space for main function ======================================================//
 
 int main() {
+    char user_choose[100];
+    printf("What do you want to do over with this code\n");
+    printf("1 for copying the file into other file, 2 for writing the file onto the screen\n"); // option for the user
+    scanf("%s",&user_choose); // the user chooses to either read or write
+    
+    
 
     exit(EXT_SUCCESS);
 }
