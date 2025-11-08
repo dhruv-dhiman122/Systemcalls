@@ -1,3 +1,13 @@
+/*
+ *The aim of this folder is to learn about systemcalls like fcntl and get better at it
+ * 📢📢📢📢
+ * NOTE TO OTHER:
+ *      if you fell that you can help me imporve my code, then plz make a pull request
+ *      and let me know by commit what you did and add. And commit the knowledge in the code you commited. thank you for visting btw
+ *      ENJOY!!! MY CODE
+ * */
+
+
 #include <stdio.h>
 #include <fcntl.h>
 #include <stdlib.h>
